@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio
+{% endblock %}
+
+{% block main %}
+    {% if session["user_id"] %}
+       you are logged in
+    {% else %}
+        login  <a href="/login">here</a><br/>
+        or register <a href="/register">here</a>
+    {% endif %}
+{% endblock %}

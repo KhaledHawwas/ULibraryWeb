@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    register
+{% endblock %}
+
+{% block main %}
+    <form action="/register" method="post">
+        <style>
+            .input-width {
+                width: 240px; /* Adjust this value to your needs */
+            }
+        </style>
+
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto input-width" name="username"
+                   placeholder="Username" type="text">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto input-width" name="password" placeholder="Password" type="password">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto input-width" name="confirmation" placeholder="confirme Password"
+                   type="password">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto input-width" name="level" placeholder="your level" type="number" min="1"
+                   max="4">
+        </div>
+        <button class="btn btn-primary" type="submit">register</button>
+    </form>
+{% endblock %}

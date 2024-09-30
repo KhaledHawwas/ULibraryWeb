@@ -1,0 +1,137 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Items
+{% endblock %}
+
+{% block main %}
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adjust the minmax value for column width */
+            gap: 20px;
+        }
+
+        .item-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .item-header {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .item-details {
+            margin-bottom: 10px;
+        }
+
+        .last-watched {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .star-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+
+        .star-btn i {
+            font-size: 1.5rem;
+        }
+
+        .download-btn {
+            margin-bottom: 10px;
+        }
+    </style>
+
+    <div class="grid-container">
+        {% for item in items %}
+            <div class="item-card">
+                <div>
+                    <div class="item-header">{{ item["name"] }}</div>
+                    <div class="item-details">{{ item["subjectName"] }}</div>
+                </div>
+                <a href="{{ item['path'] }}" class="btn btn-primary download-btn"
+                   onclick="toggleDownloads(this, {{ item['id'] }})" download>Download</a>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="last-watched" id="downloads{{ item['id'] }}">downloads: {{ item["downloads"] }}</span>
+                    <button class="star-btn" onclick="toggleStar(this, {{ item['id'] }})">
+                        <i class="fa {% if item['stared'] %}fa-star text-warning{% else %}fa-regular fa-star unselected-star{% endif %}"></i>
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        let downloadsCount = new Map();
+        {% for item in items %}
+            downloadsCount.set({{ item['id'] }}, Number({{ item['downloads'] }}));
+        {% endfor %}
+
+        function toggleDownloads(button, itemID) {
+
+            fetch(`/toggle-downloads/${itemID}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({}) // Toggle stared status
+            })
+                .then(response => response.json())
+                .then(() => {
+                    const downloads = document.getElementById('downloads' + itemID);
+                    let n=downloadsCount.get(itemID)+1;
+                    downloads.innerHTML = `downloads: ${n}`;
+                    downloadsCount.set(itemID,n) ;
+                })
+                .catch(error => {
+                    alert('Request failed:' + error.toString());
+                });
+
+        }
+
+        function toggleStar(button, itemId) {
+            const starIcon = button.querySelector('i');
+            const isCurrentlyStarred = starIcon.classList.contains('text-warning'); // Check if currently starred
+
+            // Send the asynchronous request using fetch
+            fetch(`/toggle-star/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({stared: !isCurrentlyStarred}) // Toggle stared status
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the star UI only if the request is successful
+                        if (isCurrentlyStarred) {
+                            starIcon.classList.remove('fa-star', 'text-warning'); // Remove the filled star
+                            starIcon.classList.add('fa-regular', 'fa-star', 'unselected-star'); // Gray star
+                        } else {
+                            starIcon.classList.remove('fa-regular', 'fa-star', 'unselected-star'); // Remove the gray star
+                            starIcon.classList.add('fa-star', 'text-warning'); // Add filled yellow star
+                        }
+                    } else {
+                        alert('Error updating star status');
+                    }
+                })
+                .catch(error => {
+                    alert('Request failed');
+                });
+        }
+    </script>
+
+{% endblock %}

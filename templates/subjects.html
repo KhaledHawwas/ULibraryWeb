@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Items
+{% endblock %}
+
+{% block main %}
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adjust the minmax value for column width */
+            gap: 20px;
+        }
+
+        .item-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .item-details {
+            margin-bottom: 10px;
+        }
+
+
+    </style>
+
+    <div class="grid-container">
+        {% for subject in subjects %}
+            <div class="item-card">
+                <div>
+                    <div class="item-details">{{ subject["name"] }}</div>
+                </div>
+                <form action="items" method="post"  >
+                    <input type="hidden" name="subjectName" value="{{ subject['name'] }}">
+                    <input type="submit" value="view">
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
